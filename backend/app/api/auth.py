@@ -39,3 +39,20 @@ def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = 
     
     access_token = create_access_token(data={"sub": user.email, "role": user.role})
     return {"access_token": access_token, "token_type": "bearer"}
+
+from app.api.deps import get_current_user
+from app.schemas.user import UserUpdate
+
+@router.get("/me", response_model=UserResponse)
+def read_users_me(current_user: User = Depends(get_current_user)) -> Any:
+    return current_user
+
+@router.put("/me", response_model=UserResponse)
+def update_user_me(user_update: UserUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)) -> Any:
+    update_data = user_update.dict(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(current_user, field, value)
+    db.add(current_user)
+    db.commit()
+    db.refresh(current_user)
+    return current_user

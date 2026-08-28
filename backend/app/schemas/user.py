@@ -5,9 +5,16 @@ class UserBase(BaseModel):
     name: str
     email: EmailStr
     role: str
+    phone_number: str | None = None
+    address: str | None = None
 
 class UserCreate(UserBase):
     password: str
+
+class UserUpdate(BaseModel):
+    name: str | None = None
+    phone_number: str | None = None
+    address: str | None = None
 
 class UserResponse(UserBase):
     id: int
